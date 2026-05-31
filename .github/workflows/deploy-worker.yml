@@ -1,0 +1,43 @@
+name: Deploy AI Worker
+
+# worker/ 配下を変更して main に push した時、または手動実行で
+# Cloudflare Workers に AI 解析 Worker をデプロイする。
+#
+# 必要な GitHub 設定（Settings → Secrets and variables → Actions）:
+#   Secrets:
+#     CLOUDFLARE_API_TOKEN  … Cloudflare の API トークン（Workers 編集権限）
+#     CLOUDFLARE_ACCOUNT_ID … Cloudflare のアカウント ID
+#     GEMINI_API_KEY        … Google AI Studio で取得した API キー
+on:
+  push:
+    branches: [main]
+    paths:
+      - "worker/**"
+      - ".github/workflows/deploy-worker.yml"
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install worker deps
+        working-directory: worker
+        run: npm install
+
+      - name: Deploy to Cloudflare Workers
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          workingDirectory: worker
+          # GEMINI_API_KEY を Worker の secret として登録してからデプロイする
+          secrets: |
+            GEMINI_API_KEY
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
