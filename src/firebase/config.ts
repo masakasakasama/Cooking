@@ -13,14 +13,20 @@ import {
   type Firestore,
 } from "firebase/firestore";
 import { getAuth, type Auth } from "firebase/auth";
+import { defaultFirebaseConfig } from "./firebaseConfig";
 
+const env = import.meta.env;
+
+// 環境変数があればそれを優先し、無ければコミット済みの既定値にフォールバックする。
+// （CI で Secrets が未設定でも、既定値でクラウド同期が動く。ローカルでは .env で上書き可能。）
 const firebaseConfig = {
-  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
-  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
-  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
-  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
-  appId: import.meta.env.VITE_FIREBASE_APP_ID,
+  apiKey: env.VITE_FIREBASE_API_KEY || defaultFirebaseConfig.apiKey,
+  authDomain: env.VITE_FIREBASE_AUTH_DOMAIN || defaultFirebaseConfig.authDomain,
+  projectId: env.VITE_FIREBASE_PROJECT_ID || defaultFirebaseConfig.projectId,
+  storageBucket: env.VITE_FIREBASE_STORAGE_BUCKET || defaultFirebaseConfig.storageBucket,
+  messagingSenderId:
+    env.VITE_FIREBASE_MESSAGING_SENDER_ID || defaultFirebaseConfig.messagingSenderId,
+  appId: env.VITE_FIREBASE_APP_ID || defaultFirebaseConfig.appId,
 };
 
 /** 必須項目が揃っているか = クラウド同期モードか */
