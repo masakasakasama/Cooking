@@ -1,20 +1,14 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
-import { createBrowserRouter, RouterProvider, Navigate } from "react-router-dom";
-import { HomePage } from "./pages/HomePage";
+import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { SpacePage } from "./pages/SpacePage";
 import "./index.css";
 
-// Vite の base（例: "/Cooking/"）にルーターを合わせる。
-// これでサブパス公開でもクリーンURLのルーティングが成立する。
 const basename = import.meta.env.BASE_URL.replace(/\/$/, "") || undefined;
 
+// 常に1つの固定スペースで同期する方針。どのパスを開いても同じスペースを表示する。
 const router = createBrowserRouter(
-  [
-    { path: "/", element: <HomePage /> },
-    { path: "/space/:spaceId", element: <SpacePage /> },
-    { path: "*", element: <Navigate to="/" replace /> },
-  ],
+  [{ path: "*", element: <SpacePage /> }],
   { basename },
 );
 

@@ -1,12 +1,10 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { useSpace } from "../store/SpaceContext";
 import { t } from "../i18n";
 
-// 共有リンクのコピー & スペース切替
+// 共有リンクのコピー（常に1つの固定スペースなので切替ボタンは無い）
 export function ShareBar() {
   const { lang } = useSpace();
-  const navigate = useNavigate();
   const [copied, setCopied] = useState(false);
 
   const url = window.location.href.split("?")[0];
@@ -22,7 +20,7 @@ export function ShareBar() {
       setCopied(true);
       setTimeout(() => setCopied(false), 1800);
     } catch {
-      // フォールバック: 手動コピー用に選択
+      // フォールバック: 手動コピー用に表示
       window.prompt(t("copyLink", lang), url);
     }
   };
@@ -31,9 +29,6 @@ export function ShareBar() {
     <div className="share-bar">
       <button className="btn small primary" onClick={copy}>
         🔗 {copied ? t("linkCopied", lang) : t("copyLink", lang)}
-      </button>
-      <button className="btn small ghost" onClick={() => navigate("/")}>
-        {t("leaveSpace", lang)}
       </button>
       <span className="share-hint">{t("joinHint", lang)}</span>
     </div>
