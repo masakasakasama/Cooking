@@ -1,0 +1,52 @@
+rules_version = '2';
+
+// ----------------------------------------------------------------------------
+// Cooking — Firestore セキュリティルール（MVP / 個人利用前提）
+// ----------------------------------------------------------------------------
+// 方針:
+//  - 匿名サインイン必須（request.auth != null）
+//  - sharedSpace の memberUids に含まれる uid だけが、その配下を read/write 可能
+//  - 共有リンクを知っている人は「自分を memberUids に追加」して参加できる
+//  - 完全なログインは無し。将来的に共有パスコードを足せる構造（コメント参照）
+// ----------------------------------------------------------------------------
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    // 既存スペースの memberUids に自分が入っているか
+    function isMember(spaceId) {
+      return isSignedIn()
+        && exists(/databases/$(database)/documents/spaces/$(spaceId))
+        && request.auth.uid in get(/databases/$(database)/documents/spaces/$(spaceId)).data.memberUids;
+    }
+
+    match /spaces/{spaceId} {
+
+      // 読み取りはメンバーのみ
+      allow read: if isMember(spaceId);
+
+      // 新規作成: 自分を memberUids に含めて作る
+      allow create: if isSignedIn()
+        && request.auth.uid in request.resource.data.memberUids;
+
+      // 更新: 既存メンバー、または「自分を追加して参加する」操作を許可。
+      // （共有リンクを知っている人が参加できる設計。MVP は個人利用前提。）
+      // 将来パスコードを足す場合は、ここで request.resource.data.passcode を検証する。
+      allow update: if isMember(spaceId)
+        || request.auth.uid in request.resource.data.memberUids;
+
+      // 削除は不可（MVP）
+      allow delete: if false;
+
+      // 配下の全サブコレクション（recipes / shoppingItems / preferences / settings 等）
+      // はメンバーのみ read/write 可能
+      match /{document=**} {
+        allow read, write: if isMember(spaceId);
+      }
+    }
+  }
+}

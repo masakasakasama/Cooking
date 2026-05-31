@@ -1,0 +1,96 @@
+import { useState } from "react";
+import { useLocation, useParams } from "react-router-dom";
+import { SpaceProvider, useSpace } from "../store/SpaceContext";
+import { t } from "../i18n";
+import { SyncBadge } from "../components/SyncBadge";
+import { LangToggle } from "../components/LangToggle";
+import { ShareBar } from "../components/ShareBar";
+import { RecipesView } from "../components/RecipesView";
+import { ShoppingView } from "../components/ShoppingView";
+import { PreferencesView } from "../components/PreferencesView";
+import { RecommendView } from "../components/RecommendView";
+
+const LAST_SPACE_KEY = "cooking:lastSpaceId";
+
+type Tab = "recipes" | "shopping" | "recommend" | "preferences";
+
+export function SpacePage() {
+  const { spaceId = "" } = useParams();
+  const location = useLocation();
+  const initialName = (location.state as { initialName?: string } | null)?.initialName;
+
+  // 直近スペースを覚えておく（ホームの「前回のスペースを開く」用）
+  try {
+    localStorage.setItem(LAST_SPACE_KEY, spaceId);
+  } catch {
+    /* noop */
+  }
+
+  return (
+    <SpaceProvider spaceId={spaceId} initialName={initialName}>
+      <SpaceShell />
+    </SpaceProvider>
+  );
+}
+
+function SpaceShell() {
+  const { lang, meta, ready } = useSpace();
+  const [tab, setTab] = useState<Tab>("recipes");
+
+  return (
+    <div className="app">
+      <header className="app-header">
+        <div className="header-row">
+          <div className="header-title">
+            <span className="brand-logo small">🍳</span>
+            <div className="title-text">
+              <strong>{meta?.name || t("appName", lang)}</strong>
+              <SyncBadge />
+            </div>
+          </div>
+          <LangToggle />
+        </div>
+        <ShareBar />
+      </header>
+
+      <main className="app-main">
+        {!ready ? (
+          <div className="loading">読み込み中… / Lädt…</div>
+        ) : (
+          <>
+            {tab === "recipes" && <RecipesView />}
+            {tab === "shopping" && <ShoppingView />}
+            {tab === "recommend" && <RecommendView />}
+            {tab === "preferences" && <PreferencesView />}
+          </>
+        )}
+      </main>
+
+      <nav className="tabbar">
+        <TabButton active={tab === "recipes"} onClick={() => setTab("recipes")} icon="📖" label={t("navRecipes", lang)} />
+        <TabButton active={tab === "shopping"} onClick={() => setTab("shopping")} icon="🛒" label={t("navShopping", lang)} />
+        <TabButton active={tab === "recommend"} onClick={() => setTab("recommend")} icon="✨" label={t("navRecommend", lang)} />
+        <TabButton active={tab === "preferences"} onClick={() => setTab("preferences")} icon="⚙️" label={t("navPreferences", lang)} />
+      </nav>
+    </div>
+  );
+}
+
+function TabButton({
+  active,
+  onClick,
+  icon,
+  label,
+}: {
+  active: boolean;
+  onClick: () => void;
+  icon: string;
+  label: string;
+}) {
+  return (
+    <button className={`tab ${active ? "active" : ""}`} onClick={onClick}>
+      <span className="tab-icon">{icon}</span>
+      <span className="tab-label">{label}</span>
+    </button>
+  );
+}
