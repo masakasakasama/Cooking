@@ -44,6 +44,8 @@ jobs:
           VITE_FIREBASE_APP_ID: ${{ secrets.VITE_FIREBASE_APP_ID }}
           # 固定スペース（任意）。Settings > Variables で登録。
           VITE_DEFAULT_SPACE_ID: ${{ vars.VITE_DEFAULT_SPACE_ID }}
+          # AI画像解析 Worker の URL（任意）。Settings > Variables で登録。
+          VITE_AI_WORKER_URL: ${{ vars.VITE_AI_WORKER_URL }}
 
       - uses: actions/configure-pages@v5
 

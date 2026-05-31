@@ -1,0 +1,12 @@
+name = "cooking-ai-worker"
+main = "src/index.ts"
+compatibility_date = "2024-05-12"
+
+# 既定の AI 設定。本番のキーは secret で投入する:
+#   npx wrangler secret put GEMINI_API_KEY
+[vars]
+AI_PROVIDER = "gemini"
+# 旧モデルは使わない。最新の高性能ビジョンモデルを既定にする。
+MODEL = "gemini-2.5-flash"
+# CORS 許可オリジン（カンマ区切り）。GitHub Pages のオリジンに合わせる。
+ALLOWED_ORIGINS = "https://masakasakasama.github.io"

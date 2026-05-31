@@ -417,6 +417,31 @@ code {
 .view-toolbar .search {
   flex: 1;
 }
+.block-search {
+  width: 100%;
+  margin: 10px 0 14px;
+}
+.ai-photo-box {
+  margin: 12px 0;
+  padding: 12px;
+  background: var(--surface);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+.ai-photo-box .hint {
+  margin: 8px 0 0;
+  text-align: center;
+}
+.discover-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 14px 0 4px;
+}
+.discover-section {
+  margin: 0;
+  font-size: 16px;
+}
 .view-toolbar .btn {
   flex-shrink: 0;
 }
