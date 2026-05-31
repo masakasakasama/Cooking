@@ -43,7 +43,8 @@ export class FirestoreStore implements SpaceStore {
   readonly spaceId: string;
   readonly mode = "cloud" as const;
   private db: Firestore;
-  private uid: string;
+  private getUser: () => Promise<{ uid: string }> | null;
+  private uid: string | null = null;
 
   private initialName?: string;
   private unsubs: Array<() => void> = []; // 接続イベント等（恒久）
@@ -64,10 +65,15 @@ export class FirestoreStore implements SpaceStore {
   private preferences = new Emitter<Preferences>({ ...DEFAULT_PREFERENCES });
   private displaySettings = new Emitter<DisplaySettings>({ ...DEFAULT_DISPLAY_SETTINGS });
 
-  constructor(db: Firestore, spaceId: string, uid: string, initialName?: string) {
+  constructor(
+    db: Firestore,
+    spaceId: string,
+    getUser: () => Promise<{ uid: string }> | null,
+    initialName?: string,
+  ) {
     this.db = db;
     this.spaceId = spaceId;
-    this.uid = uid;
+    this.getUser = getUser;
     this.initialName = initialName;
 
     this.attachConnectivity();
@@ -76,6 +82,7 @@ export class FirestoreStore implements SpaceStore {
 
   /**
    * 起動シーケンス（自己回復つき）。
+   * 0) 匿名サインインの完了を待って uid を得る（タイムアウトつき。詰まれば error 表示＋自動リトライ）
    * 1) メンバー登録をサーバー確定まで待つ（待たずにリスナーを張ると permission-denied になる競合バグを回避）
    * 2) 確定後にリスナーを張る
    * 失敗したら指数バックオフで自動リトライ。一時的エラーなら勝手に復旧する。
@@ -89,6 +96,12 @@ export class FirestoreStore implements SpaceStore {
     }
 
     try {
+      if (!this.uid) {
+        const p = this.getUser();
+        if (!p) throw new Error("auth unavailable");
+        const user = await p;
+        this.uid = user.uid;
+      }
       await this.ensureMembership();
       this.membershipOk = true;
       this.retryDelay = 2000; // 成功したらバックオフをリセット
@@ -156,6 +169,7 @@ export class FirestoreStore implements SpaceStore {
    * これによりエラーが UI に出て、かつ自動リトライが効く。
    */
   private async ensureMembership(): Promise<void> {
+    if (!this.uid) throw new Error("uid not resolved");
     // 注意: 事前に getDoc で読まないこと。存在しないスペースの read はルール上
     // permission-denied になる（作成前は memberUids が無い）。
     // setDoc(merge) は「無ければ create / あれば update」を 1 回でこなし、
