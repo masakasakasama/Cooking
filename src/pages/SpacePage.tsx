@@ -8,9 +8,10 @@ import { RecipesView } from "../components/RecipesView";
 import { ShoppingView } from "../components/ShoppingView";
 import { PreferencesView } from "../components/PreferencesView";
 import { RecommendView } from "../components/RecommendView";
+import { DiscoverView } from "../components/DiscoverView";
 import { FIXED_SPACE_ID } from "../lib/appConfig";
 
-type Tab = "recipes" | "shopping" | "recommend" | "preferences";
+type Tab = "recipes" | "discover" | "shopping" | "recommend" | "preferences";
 
 export function SpacePage() {
   // 常に1つの固定スペースで同期する。URL に関係なく同じスペースを開く。
@@ -47,6 +48,7 @@ function SpaceShell() {
         ) : (
           <>
             {tab === "recipes" && <RecipesView />}
+            {tab === "discover" && <DiscoverView />}
             {tab === "shopping" && <ShoppingView />}
             {tab === "recommend" && <RecommendView />}
             {tab === "preferences" && <PreferencesView />}
@@ -56,6 +58,7 @@ function SpaceShell() {
 
       <nav className="tabbar">
         <TabButton active={tab === "recipes"} onClick={() => setTab("recipes")} icon="📖" label={t("navRecipes", lang)} />
+        <TabButton active={tab === "discover"} onClick={() => setTab("discover")} icon="🔍" label={t("navDiscover", lang)} />
         <TabButton active={tab === "shopping"} onClick={() => setTab("shopping")} icon="🛒" label={t("navShopping", lang)} />
         <TabButton active={tab === "recommend"} onClick={() => setTab("recommend")} icon="✨" label={t("navRecommend", lang)} />
         <TabButton active={tab === "preferences"} onClick={() => setTab("preferences")} icon="⚙️" label={t("navPreferences", lang)} />

@@ -7,6 +7,38 @@
 - **Firebase 設定済みなら複数デバイスで自動同期**（Cloud Firestore リアルタイム）
 - 無料運用前提（Firebase **Spark プラン**の無料枠／Cloud Functions・Storage 不使用）
 - 日本語 🇯🇵 / ドイツ語 🇩🇪 切替トグル
+- **レシピ検索＆取り込み**（TheMealDB / 無料・キー不要）— 「さがす」タブ
+- **AI写真解析**（料理写真→材料・手順を自動抽出 / 任意・Cloudflare Worker）
+
+## さがす（レシピ検索・取り込み）
+
+「さがす」タブで [TheMealDB](https://www.themealdb.com/)（無料・APIキー不要の公開レシピDB）を検索し、
+気に入ったレシピを「＋追加」で自分たちのスペースに取り込めます。画像は外部URLを使うので
+Firestore 容量を圧迫しません。※TheMealDB は英語中心。取り込み後に各 Ja/De を編集できます。
+
+> Instagram からの自動取得は実装していません。Meta は 2025年4月に旧 oEmbed を廃止し、
+> 新APIは認証必須かつ「埋め込み表示」以外の用途を規約で禁止しているため
+> （レシピデータとしての取り込みは規約違反）。代わりに上記のレシピ検索を使ってください。
+
+## AI写真解析（任意）
+
+料理写真からタイトル・材料・手順を自動抽出します。**AI APIキーをフロントに置かない**ため、
+`worker/`（Cloudflare Worker）経由で AI を呼びます。既定モデルは最新の高性能ビジョンモデル
+（`gemini-2.5-flash`。旧 `gemini-1.5-flash` は使いません）。`wrangler.toml` の `MODEL` で変更可、
+`AI_PROVIDER=openai` で OpenAI 互換にも切替可能。
+
+```bash
+cd worker
+npm install
+npx wrangler secret put GEMINI_API_KEY   # Google AI Studio で無料取得したキー
+npx wrangler deploy                       # → https://cooking-ai-worker.<account>.workers.dev
+```
+
+デプロイ後、Worker の URL をフロントに教える:
+- ローカル: `.env` に `VITE_AI_WORKER_URL=https://cooking-ai-worker.<account>.workers.dev`
+- GitHub Pages: リポジトリ Settings → Variables に `VITE_AI_WORKER_URL` を登録 → 再デプロイ
+
+未設定でもアプリは動きます（「さがす」タブの AI ボタンが「未設定」と表示されるだけ）。
 
 ---
 

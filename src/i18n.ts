@@ -13,8 +13,29 @@ const dict: Dict = {
   // ナビ
   navRecipes: { ja: "レシピ", de: "Rezepte" },
   navShopping: { ja: "買い物", de: "Einkauf" },
+  navDiscover: { ja: "さがす", de: "Entdecken" },
   navRecommend: { ja: "おすすめ", de: "Vorschläge" },
   navPreferences: { ja: "好み", de: "Vorlieben" },
+
+  // レシピ検索・取り込み
+  discoverTitle: { ja: "レシピをさがす", de: "Rezepte entdecken" },
+  discoverHint: {
+    ja: "世界のレシピから検索して、気に入ったものを追加できます（TheMealDB / 英語）。",
+    de: "Suche in Weltrezepten und füge Favoriten hinzu (TheMealDB / Englisch).",
+  },
+  discoverSearchPlaceholder: { ja: "料理名で検索（例: chicken, curry）", de: "Nach Gericht suchen (z.B. chicken)" },
+  discoverEmpty: { ja: "検索結果がありません。別の語で試してください。", de: "Keine Treffer. Anderes Stichwort versuchen." },
+  discoverRandom: { ja: "ランダム表示中", de: "Zufällige Auswahl" },
+  importRecipe: { ja: "追加", de: "Hinzufügen" },
+  imported: { ja: "レシピを追加しました", de: "Rezept hinzugefügt" },
+  importing: { ja: "追加中…", de: "Füge hinzu…" },
+  aiAnalyze: { ja: "AIで写真から解析", de: "Per Foto-KI analysieren" },
+  aiAnalyzing: { ja: "AI解析中…", de: "KI analysiert…" },
+  aiNotConfigured: {
+    ja: "AI解析は未設定です（Worker URLが必要）。設定方法はREADME参照。",
+    de: "KI-Analyse nicht konfiguriert (Worker-URL nötig). Siehe README.",
+  },
+  aiFailed: { ja: "AI解析に失敗しました", de: "KI-Analyse fehlgeschlagen" },
 
   // 共有スペース
   createSpace: { ja: "共有スペースを作成", de: "Gemeinsamen Bereich erstellen" },
