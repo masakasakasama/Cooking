@@ -3,6 +3,10 @@ import react from "@vitejs/plugin-react";
 
 // https://vitejs.dev/config/
 export default defineConfig({
+  // 公開先のサブパス。GitHub Pages のプロジェクトサイトは /<repo>/ 配下になるため
+  // 既定を "/Cooking/" にする。別ホスト（Firebase Hosting 等）では "/" を渡す。
+  //   例: VITE_BASE_PATH=/ npm run build
+  base: process.env.VITE_BASE_PATH ?? "/Cooking/",
   plugins: [react()],
   server: {
     host: true,
