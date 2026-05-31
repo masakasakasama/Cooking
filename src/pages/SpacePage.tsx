@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { useLocation, useParams } from "react-router-dom";
 import { SpaceProvider, useSpace } from "../store/SpaceContext";
 import { t } from "../i18n";
 import { SyncBadge } from "../components/SyncBadge";
@@ -9,25 +8,14 @@ import { RecipesView } from "../components/RecipesView";
 import { ShoppingView } from "../components/ShoppingView";
 import { PreferencesView } from "../components/PreferencesView";
 import { RecommendView } from "../components/RecommendView";
-
-const LAST_SPACE_KEY = "cooking:lastSpaceId";
+import { FIXED_SPACE_ID } from "../lib/appConfig";
 
 type Tab = "recipes" | "shopping" | "recommend" | "preferences";
 
 export function SpacePage() {
-  const { spaceId = "" } = useParams();
-  const location = useLocation();
-  const initialName = (location.state as { initialName?: string } | null)?.initialName;
-
-  // 直近スペースを覚えておく（ホームの「前回のスペースを開く」用）
-  try {
-    localStorage.setItem(LAST_SPACE_KEY, spaceId);
-  } catch {
-    /* noop */
-  }
-
+  // 常に1つの固定スペースで同期する。URL に関係なく同じスペースを開く。
   return (
-    <SpaceProvider spaceId={spaceId} initialName={initialName}>
+    <SpaceProvider spaceId={FIXED_SPACE_ID} initialName="My Kitchen">
       <SpaceShell />
     </SpaceProvider>
   );
