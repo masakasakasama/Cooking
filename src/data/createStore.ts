@@ -11,23 +11,23 @@ export interface CreateStoreOptions {
 
 /**
  * 環境に応じて適切な SpaceStore を生成する。
- * - Firebase 設定あり: 匿名サインイン → FirestoreStore（クラウド同期）
- * - 設定なし or 失敗: LocalStore（ローカルモード）
+ * - Firebase 設定あり: FirestoreStore を即生成（匿名サインインは内部で非同期に待つ）
+ * - 設定なし: LocalStore（ローカルモード）
+ *
+ * 重要: ここで匿名サインインを await しない。await すると認証が詰まったとき
+ * createStore 全体がハングし、UI が「接続中…」で固まる。
+ * FirestoreStore 側が User の Promise を受け取り、自前のタイムアウト/リトライで処理する。
  */
 export async function createStore(
   spaceId: string,
   opts: CreateStoreOptions = {},
 ): Promise<SpaceStore> {
   if (isFirebaseConfigured()) {
-    try {
-      const userPromise = ensureAnonymousUser();
-      const fb = getFirebase();
-      if (userPromise && fb) {
-        const user = await userPromise;
-        return new FirestoreStore(fb.db, spaceId, user.uid, opts.initialName);
-      }
-    } catch (err) {
-      console.error("[store] クラウド初期化に失敗、ローカルモードにフォールバック", err);
+    const fb = getFirebase();
+    if (fb) {
+      // 毎回 ensureAnonymousUser() を呼ぶファクトリ。失敗時に内部キャッシュが
+      // 破棄されるので、リトライ時は新しいサインイン試行になる。
+      return new FirestoreStore(fb.db, spaceId, () => ensureAnonymousUser(), opts.initialName);
     }
   }
   return new LocalStore(spaceId, opts.initialName ?? "My Kitchen");
