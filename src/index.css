@@ -672,6 +672,30 @@ code {
   border-radius: 10px;
   padding: 4px 8px 4px 4px;
   box-shadow: var(--shadow);
+  transition: opacity 0.4s ease, transform 0.4s ease;
+}
+/* チェック = 買った: 線を引いてフェードアウトしてから削除（タスク完了の挙動） */
+.shopping-item.completing {
+  opacity: 0;
+  transform: translateX(44px);
+}
+.shopping-item.completing .item-name {
+  text-decoration: line-through;
+  color: var(--muted);
+}
+.shopping-item.completing .check-mark {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+.shopping-item.completing .check-mark::after {
+  content: "✓";
+  color: #fff;
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  font-size: 14px;
+  font-weight: 700;
 }
 .shopping-item label {
   display: flex;
