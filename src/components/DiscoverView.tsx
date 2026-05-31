@@ -4,6 +4,7 @@ import { t } from "../i18n";
 import {
   lookupMeal,
   mealToRecipe,
+  recommendRecipes,
   searchRecipes,
   type SearchResult,
 } from "../lib/recipeSearch";
@@ -14,7 +15,7 @@ import { compressImageToDataUrl } from "../lib/image";
 // レシピをさがす: 外部の公開レシピDB(TheMealDB)を検索し、自分たちのスペースへ取り込む。
 // ----------------------------------------------------------------------------
 export function DiscoverView() {
-  const { lang, store, recipes } = useSpace();
+  const { lang, store, recipes, preferences } = useSpace();
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<SearchResult[]>([]);
   const [loading, setLoading] = useState(false);
@@ -33,9 +34,21 @@ export function DiscoverView() {
     setLoading(true);
     setError("");
     try {
-      const res = await searchRecipes(q);
-      setResults(res);
-      setIsRandom(q.trim() === "");
+      if (q.trim() === "") {
+        // 検索語が無いときは、好み設定に基づくおすすめを表示（学習・検索の前のデフォルト）
+        const res = await recommendRecipes({
+          favorite: preferences.favoriteIngredients,
+          disliked: preferences.dislikedIngredients,
+          forbidden: preferences.forbiddenIngredients,
+          count: 6,
+        });
+        setResults(res);
+        setIsRandom(true);
+      } else {
+        const res = await searchRecipes(q);
+        setResults(res);
+        setIsRandom(false);
+      }
     } catch (e) {
       setError(e instanceof Error ? e.message : String(e));
       setResults([]);
@@ -44,7 +57,7 @@ export function DiscoverView() {
     }
   };
 
-  // 初回はランダムでおすすめ表示
+  // 初回は（検索する前に）おすすめを表示する
   useEffect(() => {
     void run("");
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -121,6 +134,16 @@ export function DiscoverView() {
         {!isAiConfigured() && <p className="hint small">{t("aiNotConfigured", lang)}</p>}
       </div>
 
+      {/* おすすめ見出し（検索前のデフォルト表示）。検索中は検索結果になる。 */}
+      {isRandom ? (
+        <div className="discover-head">
+          <h3 className="discover-section">✨ {t("discoverRandom", lang)}</h3>
+          <button className="btn small ghost" onClick={() => run("")} disabled={loading}>
+            🔄 {t("discoverRefresh", lang)}
+          </button>
+        </div>
+      ) : null}
+
       <input
         className="search block-search"
         placeholder={t("discoverSearchPlaceholder", lang)}
@@ -132,9 +155,6 @@ export function DiscoverView() {
       {error && <p className="empty">{error}</p>}
       {!loading && !error && results.length === 0 && (
         <p className="empty">{t("discoverEmpty", lang)}</p>
-      )}
-      {isRandom && results.length > 0 && (
-        <p className="hint center small">🎲 {t("discoverRandom", lang)}</p>
       )}
 
       <ul className="recipe-grid">

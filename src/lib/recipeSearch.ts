@@ -69,6 +69,60 @@ export async function searchRecipes(query: string): Promise<SearchResult[]> {
   return (data.meals ?? []).map(toResult);
 }
 
+/**
+ * 好み設定に基づくおすすめを取得する（学習・検索の前に出す初期表示用）。
+ * - 好きな食材があればそれで検索（ヒットしたものを優先）
+ * - 足りなければランダムで補う
+ * - NG/苦手食材を含む候補は除外
+ * 失敗してもランダムにフォールバックして必ず数件返す。
+ */
+export async function recommendRecipes(opts: {
+  favorite?: string[];
+  disliked?: string[];
+  forbidden?: string[];
+  count?: number;
+}): Promise<SearchResult[]> {
+  const count = opts.count ?? 6;
+  const favorite = (opts.favorite ?? []).filter(Boolean);
+  const block = [...(opts.disliked ?? []), ...(opts.forbidden ?? [])]
+    .map((s) => s.trim().toLowerCase())
+    .filter(Boolean);
+
+  const collected = new Map<string, SearchResult>();
+
+  const blocked = (m: MealDbMeal): boolean => {
+    const hay = JSON.stringify(m).toLowerCase();
+    return block.some((b) => hay.includes(b));
+  };
+
+  // 1) 好きな食材で検索（最大2語ぶん）
+  try {
+    for (const ing of favorite.slice(0, 2)) {
+      const res = await fetch(`${BASE}/filter.php?i=${encodeURIComponent(ing.trim())}`);
+      if (!res.ok) continue;
+      const data = (await res.json()) as MealDbResponse;
+      for (const m of data.meals ?? []) {
+        if (collected.size >= count) break;
+        if (!collected.has(m.idMeal)) collected.set(m.idMeal, toResult(m));
+      }
+    }
+  } catch {
+    /* ネットワーク失敗は無視してランダムで補う */
+  }
+
+  // 2) 足りない分はランダムで補完（NG/苦手は除外）
+  let guard = 0;
+  while (collected.size < count && guard < count * 3) {
+    guard++;
+    const m = await randomMeal();
+    if (!m) break;
+    if (blocked(m)) continue;
+    if (!collected.has(m.idMeal)) collected.set(m.idMeal, toResult(m));
+  }
+
+  return [...collected.values()].slice(0, count);
+}
+
 async function randomMeal(): Promise<MealDbMeal | null> {
   try {
     const res = await fetch(`${BASE}/random.php`);

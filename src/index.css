@@ -432,6 +432,16 @@ code {
   margin: 8px 0 0;
   text-align: center;
 }
+.discover-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 14px 0 4px;
+}
+.discover-section {
+  margin: 0;
+  font-size: 16px;
+}
 .view-toolbar .btn {
   flex-shrink: 0;
 }
