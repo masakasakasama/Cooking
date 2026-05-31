@@ -7,6 +7,8 @@ interface ImportMetaEnv {
   readonly VITE_FIREBASE_STORAGE_BUCKET?: string;
   readonly VITE_FIREBASE_MESSAGING_SENDER_ID?: string;
   readonly VITE_FIREBASE_APP_ID?: string;
+  /** 設定するとルート "/" を /space/{この値} へ転送する固定スペース */
+  readonly VITE_DEFAULT_SPACE_ID?: string;
 }
 
 interface ImportMeta {

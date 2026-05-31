@@ -72,6 +72,19 @@ npm run preview  # ビルド結果をプレビュー
 
 > `.env` は `.gitignore` 済み。**API キー等はコミットされません。**
 
+### 固定の共有リンクにする（毎回作成しない）
+
+スペースIDは任意の文字列でOKなので、固定リンクは2通りで作れます。
+
+- **そのまま固定IDを使う**：`https://<ドメイン>/space/futari-kitchen` を直接開くだけ。
+  Firebase 設定済みなら初回アクセスでそのスペースが自動作成され、以降は同じデータ。これを彼女に送る。
+- **ドメイン直打ちで固定スペースへ**：`.env` に `VITE_DEFAULT_SPACE_ID=futari-kitchen` を設定すると、
+  `https://<ドメイン>/` を開いただけで `/space/futari-kitchen` に入る。
+
+  ```dotenv
+  VITE_DEFAULT_SPACE_ID=futari-kitchen
+  ```
+
 ---
 
 ## 公開（無料）

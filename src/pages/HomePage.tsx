@@ -1,18 +1,26 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Navigate, useNavigate } from "react-router-dom";
 import { newSpaceId } from "../lib/id";
 import { cloudModeAvailable } from "../data/createStore";
+import { DEFAULT_SPACE_ID, hasDefaultSpace } from "../lib/appConfig";
 
 const LAST_SPACE_KEY = "cooking:lastSpaceId";
 
 // ----------------------------------------------------------------------------
 // ホーム: 共有スペースの新規作成 / 直近スペースへの再入場。
 // 参加は共有リンク (/space/{id}) を開くだけ。
+//
+// VITE_DEFAULT_SPACE_ID が設定されていれば、ルート "/" を固定スペースへ転送する
+// （ドメイン直打ちが固定の共有リンクになる）。
 // ----------------------------------------------------------------------------
 export function HomePage() {
   const navigate = useNavigate();
   const [name, setName] = useState("");
   const cloud = cloudModeAvailable();
+
+  if (hasDefaultSpace()) {
+    return <Navigate to={`/space/${DEFAULT_SPACE_ID}`} replace />;
+  }
   const lastSpace = localStorage.getItem(LAST_SPACE_KEY);
 
   const create = () => {
