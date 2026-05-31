@@ -10,6 +10,8 @@ export function ShoppingView() {
   const [nameJa, setNameJa] = useState("");
   const [nameDe, setNameDe] = useState("");
   const [amount, setAmount] = useState("");
+  // 「買った」アニメーション中の id（フェードアウト後に削除する）
+  const [completing, setCompleting] = useState<Set<string>>(new Set());
 
   const add = async () => {
     if (!store) return;
@@ -31,18 +33,26 @@ export function ShoppingView() {
     setAmount("");
   };
 
-  const toggle = async (item: ShoppingItem) => {
+  // チェック = 買った = 完了して消える（タスク完了の挙動）。
+  // 線が引かれてフェードアウトしてから、両デバイスのリストから削除（同期）。
+  const complete = (item: ShoppingItem) => {
     if (!store) return;
-    // チェック状態の変更も複数デバイスで同期される
-    await store.upsertShoppingItem({ ...item, checked: !item.checked, updatedAt: Date.now() });
+    if (completing.has(item.id)) return;
+    setCompleting((prev) => new Set(prev).add(item.id));
+    window.setTimeout(() => {
+      void store.deleteShoppingItem(item.id);
+      setCompleting((prev) => {
+        const next = new Set(prev);
+        next.delete(item.id);
+        return next;
+      });
+    }, 450); // CSS のフェード時間に合わせる
   };
 
   const remove = async (item: ShoppingItem) => {
     if (!store) return;
     await store.deleteShoppingItem(item.id);
   };
-
-  const checkedCount = shoppingItems.filter((i) => i.checked).length;
 
   return (
     <div className="view">
@@ -67,29 +77,36 @@ export function ShoppingView() {
         <p className="empty">{t("emptyShopping", lang)}</p>
       ) : (
         <ul className="shopping-list">
-          {shoppingItems.map((item) => (
-            <li key={item.id} className={`shopping-item ${item.checked ? "checked" : ""}`}>
-              <label>
-                <input type="checkbox" checked={item.checked} onChange={() => toggle(item)} />
-                <span className="check-mark" />
-                <span className="item-name">
-                  {pick(item.nameJa, item.nameDe, lang) || "—"}
-                  {item.amount && <span className="item-amount">{item.amount}</span>}
-                </span>
-              </label>
-              <button className="icon-btn" onClick={() => remove(item)} aria-label="delete">
-                🗑
-              </button>
-            </li>
-          ))}
+          {shoppingItems.map((item) => {
+            const done = completing.has(item.id);
+            return (
+              <li key={item.id} className={`shopping-item ${done ? "completing" : ""}`}>
+                <label>
+                  <input
+                    type="checkbox"
+                    checked={done}
+                    onChange={() => complete(item)}
+                  />
+                  <span className="check-mark" />
+                  <span className="item-name">
+                    {pick(item.nameJa, item.nameDe, lang) || "—"}
+                    {item.amount && <span className="item-amount">{item.amount}</span>}
+                  </span>
+                </label>
+                <button className="icon-btn" onClick={() => remove(item)} aria-label="delete">
+                  🗑
+                </button>
+              </li>
+            );
+          })}
         </ul>
       )}
 
-      {checkedCount > 0 && (
-        <button className="btn ghost block" onClick={() => store?.clearCheckedShoppingItems()}>
-          {t("clearChecked", lang)} ({checkedCount})
-        </button>
-      )}
+      <p className="hint center small">
+        {lang === "ja"
+          ? "チェックすると「買った」として消えます。間違えて追加したものは🗑で削除。"
+          : "Abhaken = gekauft, verschwindet. Versehentliche Einträge mit 🗑 löschen."}
+      </p>
     </div>
   );
 }
