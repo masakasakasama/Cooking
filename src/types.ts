@@ -103,6 +103,8 @@ export interface SyncStatus {
   /** 保留中の書き込み数（Firestore の hasPendingWrites 由来） */
   pendingWrites: number;
   message?: string;
+  /** エラー時の Firebase エラーコード（切り分け用） */
+  errorCode?: string;
 }
 
 export const DEFAULT_PREFERENCES: Preferences = {
