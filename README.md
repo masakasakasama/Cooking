@@ -96,6 +96,29 @@ npm run build
 firebase deploy --only hosting
 ```
 
+### A-2. GitHub Pages（いつものGitHubリンクで固定公開）
+
+固定リンク: **`https://masakasakasama.github.io/Cooking/space/<好きなID>`**
+（同期は Firebase が担当。Pages はホスティングと固定リンクを提供。）
+
+`.github/workflows/deploy.yml` で main への push 時に自動ビルド・公開します。初回の手順：
+
+1. **Pages を有効化** — リポジトリ Settings → Pages → Build and deployment → Source を
+   **「GitHub Actions」** に。
+2. **Firebase 設定を Secrets 登録** — Settings → Secrets and variables → Actions → *Secrets* に：
+   `VITE_FIREBASE_API_KEY` / `VITE_FIREBASE_AUTH_DOMAIN` / `VITE_FIREBASE_PROJECT_ID` /
+   `VITE_FIREBASE_STORAGE_BUCKET` / `VITE_FIREBASE_MESSAGING_SENDER_ID` / `VITE_FIREBASE_APP_ID`
+3. **（任意）固定スペースID** — 同画面の *Variables* に `VITE_DEFAULT_SPACE_ID`（例 `futari-kitchen`）。
+4. **main にマージ** — このブランチを main にマージ（または Actions タブから手動実行）すると公開。
+5. **Firebase の承認ドメイン追加** — Firebase Console → Authentication → Settings →
+   承認済みドメインに `masakasakasama.github.io` を追加。
+
+> サブパス `/Cooking/` 配下になるため、`vite.config.ts` の `base` と Router の basename を自動連動。
+> 直リンクの404は `404.html` リダイレクトでクリーンURLのまま解決します。
+>
+> ローカル開発時は `http://localhost:5173/Cooking/` を開いてください（base に合わせています）。
+> 別ホストで base を変えたい場合は `VITE_BASE_PATH=/ npm run build`。
+
 ### B. Cloudflare Pages
 
 - ビルドコマンド: `npm run build`
