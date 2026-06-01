@@ -95,29 +95,48 @@ export async function recommendRecipes(opts: {
     return block.some((b) => hay.includes(b));
   };
 
-  // 1) 好きな食材で検索（最大2語ぶん）
+  // 0) 日本で作りやすい料理を優先する。
+  //    TheMealDB の Area で「日本・中華・アジア系」を先に集める
+  //    （トルコ料理など日本で材料が揃いにくいものを後回しにする）。
+  const JAPAN_FRIENDLY_AREAS = shuffle(["Japanese", "Chinese", "Thai", "Vietnamese", "Malaysian"]);
   try {
-    for (const ing of favorite.slice(0, 2)) {
-      const res = await fetch(`${BASE}/filter.php?i=${encodeURIComponent(ing.trim())}`);
+    for (const area of JAPAN_FRIENDLY_AREAS) {
+      if (collected.size >= count) break;
+      const res = await fetch(`${BASE}/filter.php?a=${encodeURIComponent(area)}`);
       if (!res.ok) continue;
       const data = (await res.json()) as MealDbResponse;
-      for (const m of data.meals ?? []) {
+      for (const m of shuffle(data.meals ?? [])) {
         if (collected.size >= count) break;
+        if (blocked(m)) continue;
         if (!collected.has(m.idMeal)) collected.set(m.idMeal, toResult(m));
       }
     }
   } catch {
-    /* ネットワーク失敗は無視してランダムで補う */
+    /* noop */
   }
 
-  // 2) 足りなければカテゴリからまとめて取得（1回のfetchで多数の料理が並ぶ）
+  // 1) 好きな食材で検索（最大2語ぶん）
+  try {
+    for (const ing of favorite.slice(0, 2)) {
+      if (collected.size >= count) break;
+      const res = await fetch(`${BASE}/filter.php?i=${encodeURIComponent(ing.trim())}`);
+      if (!res.ok) continue;
+      const data = (await res.json()) as MealDbResponse;
+      for (const m of shuffle(data.meals ?? [])) {
+        if (collected.size >= count) break;
+        if (blocked(m)) continue;
+        if (!collected.has(m.idMeal)) collected.set(m.idMeal, toResult(m));
+      }
+    }
+  } catch {
+    /* ネットワーク失敗は無視 */
+  }
+
+  // 2) 足りなければ、日本でも馴染みのあるカテゴリから補う
+  //    （Dessert/Breakfast 等の洋風カテゴリは優先しない）
   if (collected.size < count) {
     try {
-      // 毎回違う並びにするためカテゴリをシャッフル
-      const cats = shuffle([
-        "Chicken", "Beef", "Pork", "Seafood", "Pasta", "Vegetarian",
-        "Dessert", "Breakfast", "Side", "Starter",
-      ]);
+      const cats = shuffle(["Chicken", "Beef", "Pork", "Seafood", "Pasta", "Vegetarian"]);
       for (const c of cats) {
         if (collected.size >= count) break;
         const res = await fetch(`${BASE}/filter.php?c=${encodeURIComponent(c)}`);
