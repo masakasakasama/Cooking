@@ -2,6 +2,12 @@ import { useEffect, useState } from "react";
 import { useSpace } from "../store/SpaceContext";
 import { t } from "../i18n";
 import type { Preferences } from "../types";
+import {
+  getUserGeminiKey,
+  getUserGeminiModel,
+  setUserGeminiKey,
+  setUserGeminiModel,
+} from "../lib/aiAnalyze";
 
 // カンマ区切り入力 <-> string[]
 function ListField({
@@ -39,6 +45,18 @@ export function PreferencesView() {
   const { lang, preferences, store } = useSpace();
   const [draft, setDraft] = useState<Preferences>(preferences);
   const [saved, setSaved] = useState(false);
+
+  // AI 設定（端末ローカル。Firestore には同期しない）
+  const [geminiKey, setGeminiKey] = useState(getUserGeminiKey());
+  const [geminiModel, setGeminiModel] = useState(getUserGeminiModel());
+  const [aiSaved, setAiSaved] = useState(false);
+
+  const saveAi = () => {
+    setUserGeminiKey(geminiKey);
+    setUserGeminiModel(geminiModel);
+    setAiSaved(true);
+    setTimeout(() => setAiSaved(false), 1800);
+  };
 
   // 同期で外部から更新されたら反映（編集中の取りこぼしを避けるため updatedAt で判定）
   useEffect(() => {
@@ -93,6 +111,43 @@ export function PreferencesView() {
       <button className="btn primary block" onClick={save}>
         {saved ? `✓ ${t("saved", lang)}` : t("save", lang)}
       </button>
+
+      {/* AI 設定: ユーザー自身の Gemini APIキー（端末ローカル保存・同期しない） */}
+      <section className="editor-section">
+        <h3 className="discover-section">{t("aiSettings", lang)}</h3>
+        <p className="hint small">{t("aiSettingsHint", lang)}</p>
+
+        <label className="field">
+          <span>{t("aiApiKey", lang)}</span>
+          <input
+            type="password"
+            value={geminiKey}
+            onChange={(e) => setGeminiKey(e.target.value)}
+            placeholder="AIza…"
+            autoComplete="off"
+          />
+        </label>
+
+        <label className="field">
+          <span>{t("aiModel", lang)}</span>
+          <input
+            value={geminiModel}
+            onChange={(e) => setGeminiModel(e.target.value)}
+            placeholder="gemini-2.5-flash"
+            autoComplete="off"
+          />
+        </label>
+
+        <p className="hint small">
+          <a href="https://aistudio.google.com/apikey" target="_blank" rel="noreferrer">
+            {t("aiGetKey", lang)}
+          </a>
+        </p>
+
+        <button className="btn primary block" onClick={saveAi}>
+          {aiSaved ? `✓ ${t("saved", lang)}` : t("save", lang)}
+        </button>
+      </section>
     </div>
   );
 }
