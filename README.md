@@ -40,6 +40,18 @@ npx wrangler deploy                       # → https://cooking-ai-worker.<accou
 
 未設定でもアプリは動きます（「さがす」タブの AI ボタンが「未設定」と表示されるだけ）。
 
+### Val Town で動かす（CLI もメール登録も不要・GitHub ログインだけ）
+
+Cloudflare の代わりに [Val Town](https://val.town) を使うと、ブラウザだけで AI Worker を公開できます。
+
+1. https://val.town に **GitHub でログイン**
+2. **「New」→「HTTP val」** を作成
+3. `worker/valtown.ts` の中身を貼り付け
+4. 左の鍵アイコン（Environment Variables）で **`GEMINI_API_KEY`** を登録
+   （Google AI Studio で取得した `AIza...`）
+5. 保存すると公開 URL（例 `https://<user>-cookingai.web.val.run`）が出る
+6. その URL を、リポジトリ Settings → Variables の **`VITE_AI_WORKER_URL`** に登録 → Pages 再デプロイ
+
 ---
 
 ## クイックスタート
