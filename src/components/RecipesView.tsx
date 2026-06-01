@@ -1,43 +1,66 @@
 import { useMemo, useState } from "react";
 import { useSpace } from "../store/SpaceContext";
 import { t } from "../i18n";
-import { ALL_STATUSES, pick, statusLabel } from "../lib/display";
+import { pick, statusLabel } from "../lib/display";
 import { newId } from "../lib/id";
-import type { Recipe, ShoppingItem } from "../types";
+import { aggregateIngredients } from "../lib/ingredients";
+import { ALL_DISH_CATEGORIES, type DishCategory, type Recipe, type ShoppingItem } from "../types";
 import { RecipeEditor } from "./RecipeEditor";
+import { RecipeDetail } from "./RecipeDetail";
+
+type Sort = "recent" | "cooked" | "time";
 
 export function RecipesView() {
   const { lang, recipes, store } = useSpace();
   const [editing, setEditing] = useState<Recipe | null>(null);
   const [creating, setCreating] = useState(false);
+  const [detail, setDetail] = useState<Recipe | null>(null);
   const [search, setSearch] = useState("");
+  const [cat, setCat] = useState<DishCategory | "all">("all");
+  const [sort, setSort] = useState<Sort>("recent");
   const [toast, setToast] = useState("");
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
-    if (!q) return recipes;
-    return recipes.filter((r) =>
-      `${r.titleJa} ${r.titleDe} ${r.tags.join(" ")}`.toLowerCase().includes(q),
-    );
-  }, [recipes, search]);
+    let list = recipes.filter((r) => {
+      if (cat !== "all" && r.category !== cat) return false;
+      if (!q) return true;
+      return `${r.titleJa} ${r.titleDe} ${r.tags.join(" ")}`.toLowerCase().includes(q);
+    });
+    list = [...list].sort((a, b) => {
+      if (sort === "cooked") return (b.cookedCount ?? 0) - (a.cookedCount ?? 0);
+      if (sort === "time") return (a.timeMinutes || 999) - (b.timeMinutes || 999);
+      return b.updatedAt - a.updatedAt;
+    });
+    return list;
+  }, [recipes, search, cat, sort]);
 
   const flash = (msg: string) => {
     setToast(msg);
     setTimeout(() => setToast(""), 1800);
   };
 
+  // 重複食材はまとめて買い物リストへ
   const addIngredientsToShopping = async (recipe: Recipe) => {
     if (!store) return;
+    const merged = aggregateIngredients(
+      recipe.ingredients.map((i) => ({
+        nameJa: i.nameJa,
+        nameDe: i.nameDe,
+        amount: i.amount,
+        recipeId: recipe.id,
+      })),
+    );
     const now = Date.now();
-    for (const ing of recipe.ingredients) {
-      if (!ing.nameJa && !ing.nameDe) continue;
+    for (const m of merged) {
+      if (!m.nameJa && !m.nameDe) continue;
       const item: ShoppingItem = {
         id: newId(),
-        nameJa: ing.nameJa,
-        nameDe: ing.nameDe,
-        amount: ing.amount,
+        nameJa: m.nameJa,
+        nameDe: m.nameDe,
+        amount: m.amount,
         checked: false,
-        recipeIds: [recipe.id],
+        recipeIds: m.recipeIds,
         createdAt: now,
         updatedAt: now,
       };
@@ -65,22 +88,46 @@ export function RecipesView() {
         </button>
       </div>
 
+      {/* カテゴリ絞り込み */}
+      <div className="chip-row">
+        <button className={`chip ${cat === "all" ? "active" : ""}`} onClick={() => setCat("all")}>
+          {t("catAll", lang)}
+        </button>
+        {ALL_DISH_CATEGORIES.map((c) => (
+          <button key={c} className={`chip ${cat === c ? "active" : ""}`} onClick={() => setCat(c)}>
+            {t(`cat_${c}`, lang)}
+          </button>
+        ))}
+      </div>
+
+      {/* 並び替え */}
+      <div className="sort-row">
+        <span className="muted small">{t("sortBy", lang)}:</span>
+        {(["recent", "cooked", "time"] as const).map((s) => (
+          <button key={s} className={`linkbtn ${sort === s ? "active" : ""}`} onClick={() => setSort(s)}>
+            {t(`sort_${s}`, lang)}
+          </button>
+        ))}
+      </div>
+
       {filtered.length === 0 ? (
         <p className="empty">{t("emptyRecipes", lang)}</p>
       ) : (
         <ul className="recipe-grid">
           {filtered.map((r) => (
             <li key={r.id} className="recipe-card">
-              <div className="recipe-thumb">
+              <div className="recipe-thumb tappable" onClick={() => setDetail(r)}>
                 {r.imageDataUrl ? (
                   <img src={r.imageDataUrl} alt="" loading="lazy" />
                 ) : (
-                  <span className="thumb-placeholder">🍽️</span>
+                  <span className="thumb-placeholder">{r.emoji ?? "🍽️"}</span>
                 )}
                 <span className={`status-chip ${r.status}`}>{statusLabel(r.status, lang)}</span>
               </div>
               <div className="recipe-body">
-                <h3 className="recipe-title">{pick(r.titleJa, r.titleDe, lang) || "—"}</h3>
+                <h3 className="recipe-title tappable" onClick={() => setDetail(r)}>
+                  {pick(r.titleJa, r.titleDe, lang) || "—"}
+                </h3>
                 <div className="recipe-meta">
                   {r.timeMinutes > 0 && (
                     <span>
@@ -89,6 +136,7 @@ export function RecipesView() {
                     </span>
                   )}
                   <span>· {t(`${r.difficulty}` as "easy" | "medium" | "hard", lang)}</span>
+                  {r.cookedCount ? <span>· 🍳×{r.cookedCount}</span> : null}
                 </div>
                 {r.tags.length > 0 && (
                   <div className="tags">
@@ -99,17 +147,15 @@ export function RecipesView() {
                     ))}
                   </div>
                 )}
-                {r.sourceUrl && (
-                  <a className="source-link" href={r.sourceUrl} target="_blank" rel="noreferrer">
-                    🔗 {new URL(r.sourceUrl).hostname.replace("www.", "")}
-                  </a>
-                )}
                 <div className="recipe-actions">
-                  <button className="btn tiny" onClick={() => setEditing(r)}>
-                    ✏️ {t("edit", lang)}
+                  <button className="btn tiny primary" onClick={() => setDetail(r)}>
+                    👨‍🍳 {t("startCooking", lang)}
                   </button>
                   <button className="btn tiny" onClick={() => addIngredientsToShopping(r)}>
-                    🛒 {t("addToShopping", lang)}
+                    🛒
+                  </button>
+                  <button className="btn tiny" onClick={() => setEditing(r)}>
+                    ✏️
                   </button>
                   <button className="btn tiny danger" onClick={() => remove(r)}>
                     🗑
@@ -119,6 +165,17 @@ export function RecipesView() {
             </li>
           ))}
         </ul>
+      )}
+
+      {detail && (
+        <RecipeDetail
+          recipe={detail}
+          onClose={() => setDetail(null)}
+          onEdit={(r) => {
+            setDetail(null);
+            setEditing(r);
+          }}
+        />
       )}
 
       {(creating || editing) && (
@@ -132,10 +189,6 @@ export function RecipesView() {
       )}
 
       {toast && <div className="toast">{toast}</div>}
-
-      <p className="hint center small">
-        {ALL_STATUSES.map((s) => statusLabel(s, lang)).join(" · ")}
-      </p>
     </div>
   );
 }

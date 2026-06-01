@@ -4,7 +4,7 @@ import { t } from "../i18n";
 import { ALL_STATUSES, statusLabel } from "../lib/display";
 import { newId } from "../lib/id";
 import { compressImageToDataUrl, dataUrlBytes } from "../lib/image";
-import type { CookingStep, Difficulty, Ingredient, Recipe } from "../types";
+import { ALL_DISH_CATEGORIES, type CookingStep, type Difficulty, type DishCategory, type Ingredient, type Recipe } from "../types";
 
 const DIFFICULTIES: Difficulty[] = ["easy", "medium", "hard"];
 
@@ -175,6 +175,30 @@ export function RecipeEditor({ recipe, onClose }: { recipe: Recipe | null; onClo
 
           <div className="grid-3">
             <label className="field">
+              <span>{t("category", lang)}</span>
+              <select
+                value={draft.category ?? ""}
+                onChange={(e) => set("category", (e.target.value || undefined) as DishCategory | undefined)}
+              >
+                <option value="">—</option>
+                {ALL_DISH_CATEGORIES.map((c) => (
+                  <option key={c} value={c}>
+                    {t(`cat_${c}`, lang)}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label className="field">
+              <span>{t("servings", lang)}</span>
+              <input
+                type="number"
+                min={1}
+                value={draft.servings ?? ""}
+                placeholder="2"
+                onChange={(e) => set("servings", Number(e.target.value) || undefined)}
+              />
+            </label>
+            <label className="field">
               <span>{t("timeMinutes", lang)}</span>
               <input
                 type="number"
@@ -183,6 +207,9 @@ export function RecipeEditor({ recipe, onClose }: { recipe: Recipe | null; onClo
                 onChange={(e) => set("timeMinutes", Number(e.target.value) || 0)}
               />
             </label>
+          </div>
+
+          <div className="grid-2">
             <label className="field">
               <span>{t("difficulty", lang)}</span>
               <select

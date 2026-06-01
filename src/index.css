@@ -846,3 +846,412 @@ code {
   z-index: 60;
   box-shadow: var(--shadow);
 }
+
+/* ============================================================
+   追加機能のスタイル（献立・食材検索・調理モード・売り場分類 ほか）
+   ============================================================ */
+
+/* タップできるカード要素 */
+.tappable {
+  cursor: pointer;
+}
+.recipe-card.tappable:active {
+  transform: scale(0.99);
+}
+.recipe-title.tappable:hover {
+  color: var(--primary);
+}
+
+.view-toolbar.mt {
+  margin-top: 22px;
+}
+
+/* セグメント切替（食材から / 世界） */
+.seg {
+  display: flex;
+  gap: 6px;
+  background: var(--surface-2);
+  padding: 4px;
+  border-radius: 12px;
+  margin: 12px 0;
+}
+.seg-btn {
+  flex: 1;
+  border: none;
+  background: transparent;
+  padding: 9px 10px;
+  border-radius: 9px;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--muted);
+  cursor: pointer;
+}
+.seg-btn.active {
+  background: var(--surface);
+  color: var(--primary);
+  box-shadow: var(--shadow);
+}
+
+/* カテゴリチップ行 */
+.chip-row {
+  display: flex;
+  gap: 7px;
+  overflow-x: auto;
+  padding: 4px 0 8px;
+  -webkit-overflow-scrolling: touch;
+}
+.chip {
+  flex: 0 0 auto;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--muted);
+  padding: 6px 13px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.chip.active {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: #fff;
+}
+
+/* 並び替え行 */
+.sort-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+  font-size: 13px;
+}
+.linkbtn {
+  border: none;
+  background: none;
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 2px 0;
+}
+.linkbtn.active {
+  color: var(--primary);
+  text-decoration: underline;
+}
+
+/* 旬・作れるバッジ */
+.season-chip {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 999px;
+  background: rgba(210, 130, 30, 0.92);
+  color: #fff;
+}
+.season-chip.can-make {
+  background: rgba(47, 158, 143, 0.95);
+}
+.rec-reason {
+  margin: 0;
+  font-size: 12px;
+  color: var(--accent);
+  font-weight: 600;
+}
+.have-tags {
+  color: var(--accent);
+}
+.miss-tags {
+  color: var(--muted);
+}
+
+/* 献立プラン */
+.menu-plan {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin: 12px 0;
+}
+.menu-slot {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 12px 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  cursor: pointer;
+  text-align: center;
+}
+.menu-slot:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+.menu-slot-role {
+  font-size: 11px;
+  font-weight: 700;
+  color: #fff;
+  background: var(--accent);
+  padding: 2px 9px;
+  border-radius: 999px;
+}
+.menu-slot-emoji {
+  font-size: 30px;
+}
+.menu-slot-name {
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.3;
+}
+.menu-slot-time {
+  font-size: 11px;
+  color: var(--muted);
+}
+
+/* レシピ詳細 */
+.detail-hero {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.detail-img {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  border-radius: var(--radius);
+  background: var(--surface-2);
+}
+.detail-img.empty {
+  display: grid;
+  place-items: center;
+  font-size: 64px;
+}
+.detail-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 9px;
+  font-size: 13px;
+  color: var(--muted);
+}
+.servings-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 16px 0 4px;
+  font-weight: 700;
+}
+.stepper {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--surface-2);
+  border-radius: 999px;
+  padding: 4px;
+}
+.stepper button {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: none;
+  background: var(--surface);
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--primary);
+  cursor: pointer;
+  box-shadow: var(--shadow);
+}
+.stepper strong {
+  min-width: 46px;
+  text-align: center;
+}
+.detail-ings {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.detail-ings li {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 9px 2px;
+  border-bottom: 1px solid var(--border);
+  font-size: 14px;
+}
+.detail-steps {
+  margin: 0;
+  padding-left: 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.detail-steps li {
+  font-size: 14px;
+  line-height: 1.55;
+  padding-left: 4px;
+}
+.detail-memo {
+  font-size: 14px;
+  white-space: pre-wrap;
+}
+.modal-footer.wrap {
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+/* 売り場グループ（買い物リスト） */
+.aisle-group {
+  margin-bottom: 16px;
+}
+.aisle-head {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--muted);
+  margin: 4px 0 6px;
+  padding-bottom: 4px;
+  border-bottom: 2px solid var(--border);
+}
+
+/* ============================================================
+   調理モード（全画面）
+   ============================================================ */
+.cook-mode {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  background: var(--bg);
+  display: flex;
+  flex-direction: column;
+  padding-top: var(--safe-top);
+  padding-bottom: var(--safe-bottom);
+}
+.cook-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+}
+.cook-title {
+  font-weight: 700;
+  font-size: 15px;
+  text-align: center;
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.icon-btn.light {
+  background: var(--surface-2);
+  border: none;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  font-size: 16px;
+  cursor: pointer;
+}
+.cook-ingredients {
+  background: var(--surface-2);
+  padding: 12px 16px;
+  max-height: 34vh;
+  overflow-y: auto;
+}
+.cook-ingredients h4 {
+  margin: 0 0 8px;
+  font-size: 13px;
+  color: var(--muted);
+}
+.cook-ingredients ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.cook-ingredients li {
+  display: flex;
+  justify-content: space-between;
+  padding: 6px 0;
+  font-size: 14px;
+  border-bottom: 1px solid var(--border);
+}
+.cook-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 24px 22px;
+  overflow-y: auto;
+}
+.cook-step-no {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--primary);
+  margin-bottom: 16px;
+}
+.cook-step-text {
+  font-size: 26px;
+  line-height: 1.6;
+  font-weight: 600;
+  margin: 0;
+}
+.cook-timer-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 26px;
+}
+.timer-chip {
+  border: 2px solid var(--accent);
+  background: var(--surface);
+  color: var(--accent);
+  font-weight: 700;
+  font-size: 15px;
+  padding: 9px 16px;
+  border-radius: 999px;
+  cursor: pointer;
+}
+.cook-timers {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 10px 16px;
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+}
+.running-timer {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--surface-2);
+  border-radius: 10px;
+  padding: 8px 12px;
+}
+.running-timer.soon {
+  background: rgba(232, 83, 79, 0.15);
+}
+.rt-label {
+  font-size: 13px;
+  color: var(--muted);
+  flex: 1;
+}
+.rt-clock {
+  font-size: 22px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  color: var(--primary);
+}
+.cook-nav {
+  display: flex;
+  gap: 10px;
+  padding: 12px 16px calc(12px + var(--safe-bottom));
+  border-top: 1px solid var(--border);
+  background: var(--surface);
+}
+.cook-nav .btn.block {
+  flex: 1;
+  padding: 14px;
+  font-size: 16px;
+}

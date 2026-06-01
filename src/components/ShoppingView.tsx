@@ -1,8 +1,9 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useSpace } from "../store/SpaceContext";
 import { t } from "../i18n";
 import { pick } from "../lib/display";
 import { newId } from "../lib/id";
+import { AISLE_ORDER, aisleLabel, aisleOf, type Aisle } from "../lib/ingredients";
 import type { ShoppingItem } from "../types";
 
 export function ShoppingView() {
@@ -54,6 +55,37 @@ export function ShoppingView() {
     await store.deleteShoppingItem(item.id);
   };
 
+  // 売り場ごとにグループ化（買い物の動線に沿って並べる）
+  const grouped = useMemo(() => {
+    const map = new Map<Aisle, ShoppingItem[]>();
+    for (const item of shoppingItems) {
+      const a = aisleOf(item.nameJa, item.nameDe);
+      const arr = map.get(a) ?? [];
+      arr.push(item);
+      map.set(a, arr);
+    }
+    return AISLE_ORDER.filter((a) => map.has(a)).map((a) => ({ aisle: a, items: map.get(a)! }));
+  }, [shoppingItems]);
+
+  const renderItem = (item: ShoppingItem) => {
+    const done = completing.has(item.id);
+    return (
+      <li key={item.id} className={`shopping-item ${done ? "completing" : ""}`}>
+        <label>
+          <input type="checkbox" checked={done} onChange={() => complete(item)} />
+          <span className="check-mark" />
+          <span className="item-name">
+            {pick(item.nameJa, item.nameDe, lang) || "—"}
+            {item.amount && <span className="item-amount">{item.amount}</span>}
+          </span>
+        </label>
+        <button className="icon-btn" onClick={() => remove(item)} aria-label="delete">
+          🗑
+        </button>
+      </li>
+    );
+  };
+
   return (
     <div className="view">
       <div className="add-item">
@@ -76,30 +108,12 @@ export function ShoppingView() {
       {shoppingItems.length === 0 ? (
         <p className="empty">{t("emptyShopping", lang)}</p>
       ) : (
-        <ul className="shopping-list">
-          {shoppingItems.map((item) => {
-            const done = completing.has(item.id);
-            return (
-              <li key={item.id} className={`shopping-item ${done ? "completing" : ""}`}>
-                <label>
-                  <input
-                    type="checkbox"
-                    checked={done}
-                    onChange={() => complete(item)}
-                  />
-                  <span className="check-mark" />
-                  <span className="item-name">
-                    {pick(item.nameJa, item.nameDe, lang) || "—"}
-                    {item.amount && <span className="item-amount">{item.amount}</span>}
-                  </span>
-                </label>
-                <button className="icon-btn" onClick={() => remove(item)} aria-label="delete">
-                  🗑
-                </button>
-              </li>
-            );
-          })}
-        </ul>
+        grouped.map(({ aisle, items }) => (
+          <div key={aisle} className="aisle-group">
+            <h3 className="aisle-head">{aisleLabel(aisle, lang)}</h3>
+            <ul className="shopping-list">{items.map(renderItem)}</ul>
+          </div>
+        ))
       )}
 
       <p className="hint center small">

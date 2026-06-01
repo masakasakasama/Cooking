@@ -10,6 +10,18 @@ export type RecipeStatus = "want" | "cooking" | "cooked" | "favorite";
 
 export type Difficulty = "easy" | "medium" | "hard";
 
+// 献立の役割。主菜・副菜・汁物・ご飯もの・麺・デザート。
+export type DishCategory = "main" | "side" | "soup" | "rice" | "noodle" | "dessert";
+
+export const ALL_DISH_CATEGORIES: DishCategory[] = [
+  "main",
+  "side",
+  "soup",
+  "rice",
+  "noodle",
+  "dessert",
+];
+
 export interface Ingredient {
   id: string;
   nameJa: string;
@@ -42,6 +54,20 @@ export interface Recipe {
   steps: CookingStep[];
   createdAt: number;
   updatedAt: number;
+
+  // --- 追加メタ（任意。既存データとの後方互換のため optional）---
+  /** 献立での役割（主菜/副菜/汁物など）。献立提案・分類に使う。 */
+  category?: DishCategory;
+  /** 旬の月（1-12）。未指定なら通年。おすすめの季節補正に使う。 */
+  seasonMonths?: number[];
+  /** 何人前か。分量スケーリングの基準。未指定なら 2 とみなす。 */
+  servings?: number;
+  /** 画像が無いときのサムネ代わりの絵文字。 */
+  emoji?: string;
+  /** 作った回数（自分用の人気順に使う）。 */
+  cookedCount?: number;
+  /** 最後に作った日時(ms)。 */
+  lastCookedAt?: number;
 }
 
 export interface ShoppingItem {
