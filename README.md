@@ -40,6 +40,18 @@ npx wrangler deploy                       # → https://cooking-ai-worker.<accou
 
 未設定でもアプリは動きます（「さがす」タブの AI ボタンが「未設定」と表示されるだけ）。
 
+### サーバー不要でAIを使う（自分のGeminiキーを入れるだけ）
+
+Worker を立てるのが面倒なら、**自分の Gemini APIキーをアプリに入力する方式**が一番簡単です。
+
+1. [Google AI Studio](https://aistudio.google.com/apikey) で無料の API キー（`AIza…`）を取得
+2. アプリの **「好み」タブ → AI設定** にキーを貼って保存
+3. 「さがす」タブの「📷 AIで写真から解析」が使えるようになる
+
+キーは**その端末の localStorage にのみ保存**され、Firestore にも配布コードにも含まれません
+（複数端末で使うなら各端末で入力）。無料枠内で使えます。モデルは既定 `gemini-2.5-flash`、
+新しいモデルが出たら設定欄で変更できます。
+
 ### Val Town で動かす（CLI もメール登録も不要・GitHub ログインだけ）
 
 Cloudflare の代わりに [Val Town](https://val.town) を使うと、ブラウザだけで AI Worker を公開できます。

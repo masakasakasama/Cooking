@@ -38,6 +38,16 @@ const dict: Dict = {
   },
   aiFailed: { ja: "AI解析に失敗しました", de: "KI-Analyse fehlgeschlagen" },
 
+  // AI 設定（端末ローカル）
+  aiSettings: { ja: "AI設定（写真解析）", de: "KI-Einstellungen (Foto)" },
+  aiSettingsHint: {
+    ja: "あなたのGemini APIキーを使って料理写真を解析します。キーはこの端末内にのみ保存され、同期もサーバー送信もされません。無料枠で使えます。",
+    de: "Nutzt deinen Gemini-API-Key zur Fotoanalyse. Der Key wird nur auf diesem Gerät gespeichert, nicht synchronisiert. Im Gratis-Kontingent nutzbar.",
+  },
+  aiApiKey: { ja: "Gemini APIキー", de: "Gemini API-Key" },
+  aiModel: { ja: "モデル（通常はそのままでOK）", de: "Modell (Standard ok)" },
+  aiGetKey: { ja: "→ Google AI Studio で無料キーを取得", de: "→ Gratis-Key bei Google AI Studio holen" },
+
   // 共有スペース
   createSpace: { ja: "共有スペースを作成", de: "Gemeinsamen Bereich erstellen" },
   createSpaceDesc: {
