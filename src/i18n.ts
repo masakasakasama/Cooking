@@ -111,13 +111,59 @@ const dict: Dict = {
   save: { ja: "保存", de: "Speichern" },
   saved: { ja: "保存しました", de: "Gespeichert" },
 
+  // 献立・カテゴリ・人数・調理モード・食材検索
+  category: { ja: "カテゴリ", de: "Kategorie" },
+  catAll: { ja: "すべて", de: "Alle" },
+  cat_main: { ja: "主菜", de: "Hauptgericht" },
+  cat_side: { ja: "副菜", de: "Beilage" },
+  cat_soup: { ja: "汁物", de: "Suppe" },
+  cat_rice: { ja: "ご飯もの", de: "Reisgericht" },
+  cat_noodle: { ja: "麺", de: "Nudeln" },
+  cat_dessert: { ja: "デザート", de: "Dessert" },
+
+  role_main: { ja: "主菜", de: "Hauptgericht" },
+  role_side: { ja: "副菜", de: "Beilage" },
+  role_soup: { ja: "汁物", de: "Suppe" },
+
+  servings: { ja: "人数", de: "Portionen" },
+  servingsUnit: { ja: "人前", de: "P." },
+
+  todaysMenu: { ja: "今日の献立", de: "Heutiges Menü" },
+  anotherMenu: { ja: "別の献立", de: "Anderes Menü" },
+  menuToShopping: { ja: "献立の材料を買い物リストへ", de: "Zutaten zur Einkaufsliste" },
+  inSeason: { ja: "旬", de: "Saison" },
+
+  sortBy: { ja: "並び替え", de: "Sortieren" },
+  sort_recent: { ja: "新しい順", de: "Neueste" },
+  sort_cooked: { ja: "よく作る順", de: "Oft gekocht" },
+  sort_time: { ja: "時短順", de: "Schnellste" },
+
+  // さがす（食材から / 世界）
+  fridgeMode: { ja: "食材から", de: "Aus Zutaten" },
+  worldMode: { ja: "世界のレシピ", de: "Weltrezepte" },
+  fridgeHint: {
+    ja: "家にある食材を入れると、日本で作れる料理を「作れる順」に出します（調味料は持っている前提）。",
+    de: "Gib vorhandene Zutaten ein – passende Gerichte erscheinen nach Machbarkeit (Würzmittel vorausgesetzt).",
+  },
+  fridgePlaceholder: { ja: "例: 豚肉 玉ねぎ じゃがいも", de: "z.B. Schwein Zwiebel Kartoffel" },
+  fridgeEmpty: { ja: "食材を入力してください（スペース区切り）。", de: "Zutaten eingeben (durch Leerzeichen getrennt)." },
+  fridgeNoMatch: { ja: "その食材で作れる料理が見つかりません。", de: "Keine passenden Gerichte gefunden." },
+  canMake: { ja: "作れる", de: "machbar" },
+  missingN: { ja: "あと{n}つ", de: "fehlt {n}" },
+
+  // 調理モード
+  startCooking: { ja: "作る", de: "Kochen" },
+  startTimer: { ja: "計る", de: "Start" },
+  stepLabel: { ja: "手順", de: "Schritt" },
+  prevStep: { ja: "前へ", de: "Zurück" },
+  nextStep: { ja: "次へ", de: "Weiter" },
+  finishCooking: { ja: "完成！", de: "Fertig!" },
+  markCooked: { ja: "作った", de: "Gekocht" },
+  markedCooked: { ja: "「作った」に記録しました", de: "Als gekocht gespeichert" },
+
   // おすすめ
   todaysRecommend: { ja: "今日のおすすめ", de: "Heutige Vorschläge" },
   regenerate: { ja: "再計算", de: "Neu berechnen" },
-  recommendStubNote: {
-    ja: "※ MVP では好み設定に基づく簡易ロジックで提案しています（AI解析は将来対応）。",
-    de: "※ MVP: einfache Logik aus den Vorlieben (KI-Analyse folgt später).",
-  },
   noRecommend: { ja: "おすすめがありません。レシピを追加してください。", de: "Keine Vorschläge. Bitte Rezepte hinzufügen." },
 
   // 共通
