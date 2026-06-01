@@ -110,9 +110,33 @@ export async function recommendRecipes(opts: {
     /* ネットワーク失敗は無視してランダムで補う */
   }
 
-  // 2) 足りない分はランダムで補完（NG/苦手は除外）
+  // 2) 足りなければカテゴリからまとめて取得（1回のfetchで多数の料理が並ぶ）
+  if (collected.size < count) {
+    try {
+      // 毎回違う並びにするためカテゴリをシャッフル
+      const cats = shuffle([
+        "Chicken", "Beef", "Pork", "Seafood", "Pasta", "Vegetarian",
+        "Dessert", "Breakfast", "Side", "Starter",
+      ]);
+      for (const c of cats) {
+        if (collected.size >= count) break;
+        const res = await fetch(`${BASE}/filter.php?c=${encodeURIComponent(c)}`);
+        if (!res.ok) continue;
+        const data = (await res.json()) as MealDbResponse;
+        for (const m of shuffle(data.meals ?? [])) {
+          if (collected.size >= count) break;
+          if (blocked(m)) continue;
+          if (!collected.has(m.idMeal)) collected.set(m.idMeal, toResult(m));
+        }
+      }
+    } catch {
+      /* noop */
+    }
+  }
+
+  // 3) それでも足りなければランダムで補完
   let guard = 0;
-  while (collected.size < count && guard < count * 3) {
+  while (collected.size < count && guard < count * 2) {
     guard++;
     const m = await randomMeal();
     if (!m) break;
@@ -121,6 +145,16 @@ export async function recommendRecipes(opts: {
   }
 
   return [...collected.values()].slice(0, count);
+}
+
+// 配列をシャッフル（毎回違うおすすめにする）
+function shuffle<T>(arr: T[]): T[] {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
 }
 
 async function randomMeal(): Promise<MealDbMeal | null> {
