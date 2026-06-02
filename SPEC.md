@@ -129,6 +129,16 @@ id は `curated:*` で安定。表示はそのまま、「追加」で新IDを�
 
 ---
 
+## 5.9 自動更新（毎回アンインストール不要）`src/lib/appUpdate.ts`
+iOS ホーム画面アプリ等が `index.html` を強くキャッシュして古いまま固まる問題への対策。
+- ビルドごとに版を発行：`vite.config.ts` が `__APP_VERSION__` を注入し `version.json` を出力（CI は `APP_VERSION=github.sha`）。
+- 起動時・前面復帰時・オンライン復帰時に `version.json` を `no-store` で取得し、自分の版と違えば「新版あり」。
+- 新版検出時：Service Worker とキャッシュを全消去 → `?v=新版` を付けて `location.replace`（URLが変わるので端末は必ず最新 index.html を取り直す）。小さな更新中バナーを表示。
+- ループ防止：同一新版での再リロードは1セッション1回（sessionStorage ガード）。
+- 依存ライブラリ無し・どのホスト/サブパスでも動作（`BASE_URL` 基準）。
+- 注意：この仕組みが「載った版」以降の更新が自動。導入の最初の1回だけ手動更新/再インストールが必要。
+- PWA：`public/manifest.webmanifest` + `public/icon.svg`、apple メタは index.html、manifest/icon は base 込みで `main.tsx` が動的挿入。
+
 ## 6. AI写真解析（2方式・`src/lib/aiAnalyze.ts`）
 1. **ユーザー自身の Gemini キー方式（推奨・サーバー不要）**：「好み」タブでキー入力 → `localStorage` に保存（同期もサーバー送信もしない）→ ブラウザから直接 Gemini を呼ぶ。
 2. **Worker 方式（任意）**：`VITE_AI_WORKER_URL` を設定すると Cloudflare Worker 経由（キーをフロントに置かない）。
