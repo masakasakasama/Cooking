@@ -1,0 +1,19 @@
+{
+  "name": "Cooking — 共有レシピ & 買い物リスト",
+  "short_name": "Cooking",
+  "description": "二人で同期する料理レシピ＆買い物リスト",
+  "start_url": ".",
+  "scope": ".",
+  "display": "standalone",
+  "background_color": "#faf7f4",
+  "theme_color": "#e8534f",
+  "lang": "ja",
+  "icons": [
+    {
+      "src": "icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

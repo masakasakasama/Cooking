@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <rect width="512" height="512" rx="112" fill="#e8534f"/>
+  <!-- フライパン -->
+  <circle cx="232" cy="300" r="118" fill="#2c2622"/>
+  <circle cx="232" cy="300" r="92" fill="#3a322c"/>
+  <rect x="338" y="286" width="150" height="28" rx="14" fill="#2c2622" transform="rotate(-18 338 300)"/>
+  <!-- 目玉焼き -->
+  <ellipse cx="232" cy="300" rx="70" ry="62" fill="#fdfbf6"/>
+  <circle cx="232" cy="300" r="30" fill="#f6b21b"/>
+</svg>

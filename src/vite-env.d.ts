@@ -16,3 +16,6 @@ interface ImportMetaEnv {
 interface ImportMeta {
   readonly env: ImportMetaEnv;
 }
+
+/** ビルド時に vite.config.ts の define で注入されるアプリのバージョン。 */
+declare const __APP_VERSION__: string;
